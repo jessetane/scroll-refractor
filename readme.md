@@ -1,7 +1,7 @@
 # scroll-refractor
 A web component that scrolls its content perpendicularly.
 
-Check out a [http://jessetane.github.io/scroll-refractor/](demo).
+Check out a [https://jessetane.github.io/scroll-refractor/](demo).
 
 ## Why
 You want to navigate through a horizontal interface by scrolling vertically or vice versa.

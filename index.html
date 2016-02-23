@@ -1,0 +1,116 @@
+<!doctype html>
+<html class=vertical>
+  <head>
+    <title>scroll-refractor</title>
+    <meta charset='utf-8'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <style>
+      html, body {
+        padding: 0;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        font-family: sans-serif;
+        letter-spacing: 0.5px;
+        color: #FFF;
+      }
+      body > * {
+        flex-shrink: 0;
+      }
+      #before, #after {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        background-color: #222;
+      }
+      x-scroll-refractor {
+        display: block;
+      }
+      x-scroll-refractor img {
+        display: block;
+      }
+      form {
+        display: flex;
+        position: fixed;
+        top: 0;
+        right: 0;
+        padding: 10px;
+      }
+      form > * {
+        padding: 10px;
+      }
+      /* vertical specific */
+      html.vertical {
+        overflow-x: hidden;
+      }
+      .vertical #before,
+      .vertical #after {
+        height: 75vh;
+      }
+      .vertical body {
+        flex-direction: column;
+      }
+      .vertical x-scroll-refractor {
+        height: 100vh;
+      }
+      .vertical x-scroll-refractor > * {
+        display: flex;
+        height: 100vh;
+      }
+      .vertical x-scroll-refractor img {
+        height: 100vh;
+      }
+      /* horizontal specific */
+      html.horizontal {
+        overflow-y: hidden;
+      }
+      .horizontal #before,
+      .horizontal #after {
+        width: 75vw;
+      }
+      .horizontal x-scroll-refractor {
+        width: 100vw;
+      }
+      .horizontal x-scroll-refractor > * {
+        width: 100vw;
+      }
+      .horizontal x-scroll-refractor img {
+        width: 100vw;
+      }
+    </style>
+  </head>
+  <body>  
+    <div id="before">Before</div>
+    <x-scroll-refractor>
+      <div>
+        <img src="https://thestrawfoot.files.wordpress.com/2012/09/eight-bells.jpg">
+        <img src="http://vintageprintable.com/wp-content/uploads/2010/07/Portrait-Face-Painting-Courbert-self-portrait.jpg">
+        <img src="https://theartofpolemics.files.wordpress.com/2014/07/aert_van_der_neer_attr_hollc3a4ndische_kanallandschaft_bei_mondschein_mit_lagerfeuer.jpg">
+        <img src="http://1.bp.blogspot.com/_Nuta_CQvImI/TM6e_KmTFpI/AAAAAAAADuU/fGhV4BRmhDg/s1600/Jean-Baptiste-Marie-Pierre,-The-Temptation-of-Eve,-1800s.jpg">
+        <img src="http://www.cityam.com/sites/default/files/styles/full_width_article_body_image/public/main/articles/scream-painting.jpg">
+        <img src="http://ep.yimg.com/ty/cdn/madisonartshop/most-famous-paintings-2.jpg">
+        <img src="http://i.onionstatic.com/clickhole/7408/original/600.jpg">
+      </div>
+    </x-scroll-refractor>
+    <div id="after">After</div>
+    <form>
+      <label>
+        <input name=direction type=radio value=vertical checked>
+        <span>Vertical</span>
+      </label>
+      <label>
+        <input name=direction type=radio value=horizontal>
+        <span>Horizontal</span>
+      </label>
+      <label>
+        <input name=reverse type=checkbox>
+        <span>Reverse</span>
+      </label>
+    </form>
+    <script src="build.js"></script>
+  </body>
+</html>

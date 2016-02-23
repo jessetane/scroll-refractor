@@ -1,0 +1,15 @@
+{
+  "name": "scroll-refractor",
+  "version": "1.0.0",
+  "description": "A web component that scrolls its content perpendicularly",
+  "scripts": {
+    "example": "cd example; watchify index.js -o build.js & ROOT=. app-server & wait"
+  },
+  "devDependencies": {
+    "app-server": "github:jessetane/app-server",
+    "watchify": "^3.7.0"
+  },
+  "repository": "https://github.com/jessetane/scroll-refractor",
+  "author": "Jesse Tane <jesse.tane@gmail.com>",
+  "license": "Public domain"
+}

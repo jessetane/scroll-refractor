@@ -102,7 +102,9 @@ ScrollRefractor.prototype._onenterFrame = function () {
 
 ScrollRefractor.prototype.update = function () {
   var content = this.firstElementChild
-  content.style.position = 'absolute'
+  if (!content.style.position) {
+    content.style.position = 'absolute'
+  }
   var contentSize = content[this._offsetPerpendicular]
   var contentSizePerpendicular = content[this._offsetMain]
   var offsetPerpendicular = this[this._offsetPerpendicular]
@@ -114,9 +116,11 @@ ScrollRefractor.prototype.update = function () {
   if (scroll < offsetBefore) {
     content.style[this._edgeBefore] = '0'
     content.style[this._edgeAfter] = null
+    content.style.position = 'absolute'
   } else if (scroll > offsetBefore + scrollable) {
     content.style[this._edgeBefore] = null
     content.style[this._edgeAfter] = '0'
+    content.style.position = 'absolute'
   } else {
     content.style[this._edgeBefore] = this._scrollReference[this._offsetBefore] + 'px'
     content.style.position = 'fixed'

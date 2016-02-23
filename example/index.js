@@ -1,3 +1,4 @@
+require('document-register-element')
 require('../')
 
 var refractor = document.querySelector('x-scroll-refractor')

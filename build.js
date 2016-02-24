@@ -176,9 +176,9 @@ ScrollRefractor.prototype.update = function () {
   offset = Math.min(offset, 0)
 
   if (this._direction === 'vertical') {
-    content.style.transform = 'translate3d(' + offset + 'px,0,0)'
+    content.style.transform = 'translate(' + offset + 'px,0)'
   } else {
-    content.style.transform = 'translate3d(0,' + offset + 'px,0)'
+    content.style.transform = 'translate(0,' + offset + 'px)'
   }
 }
 

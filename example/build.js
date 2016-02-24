@@ -55,6 +55,9 @@ Object.defineProperty(ScrollRefractor.prototype, 'direction', {
 
 Object.defineProperty(ScrollRefractor.prototype, 'reverse', {
   get: function () {
+    if (this._reverse === undefined) {
+      this.reverse = this.getAttribute('reverse')
+    }
     return this._reverse
   },
   set: function (reverse) {

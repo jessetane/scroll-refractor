@@ -15,6 +15,9 @@ function update () {
   refractor.setAttribute('direction', direction)
   document.documentElement.className = direction
 
+  // set factor
+  refractor.setAttribute('factor', form.elements.factor.value)
+
   // reverse
   var reverse = form.elements.reverse.checked
   if (reverse) {
@@ -57,6 +60,18 @@ Object.defineProperty(ScrollRefractor.prototype, 'reverse', {
   set: function (reverse) {
     this._reverse = !!reverse
     this._reset()
+  }
+})
+
+Object.defineProperty(ScrollRefractor.prototype, 'factor', {
+  get: function () {
+    if (this._factor === undefined) {
+      this.factor = this.getAttribute('factor')
+    }
+    return this._factor || 1.0
+  },
+  set: function (factor) {
+    this._factor = parseFloat(factor)
   }
 })
 
@@ -149,10 +164,11 @@ ScrollRefractor.prototype.update = function () {
   if (!content.style.position) {
     content.style.position = 'absolute'
   }
+  var factor = this.factor
   var contentSize = content[this._offsetPerpendicular]
   var contentSizePerpendicular = content[this._offsetMain]
   var offsetPerpendicular = this[this._offsetPerpendicular]
-  var scrollable = contentSize - offsetPerpendicular
+  var scrollable = (contentSize - offsetPerpendicular) / factor
   this.style[this._size] = scrollable + contentSizePerpendicular + 'px'
 
   var scroll = this.scrollBefore
@@ -171,7 +187,7 @@ ScrollRefractor.prototype.update = function () {
   }
 
   scroll -= offsetBefore
-  var offset = this._reverse ? (scroll - contentSize + offsetPerpendicular) : -scroll
+  var offset = this._reverse ? ((scroll - contentSize + offsetPerpendicular) * factor) : -scroll * factor
   offset = Math.max(offset, -contentSize + offsetPerpendicular)
   offset = Math.min(offset, 0)
 

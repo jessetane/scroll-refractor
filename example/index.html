@@ -35,6 +35,7 @@
       }
       form {
         display: flex;
+        align-items: center;
         position: fixed;
         top: 0;
         right: 0;
@@ -42,6 +43,11 @@
       }
       form > * {
         padding: 10px;
+      }
+      form [name=factor] {
+        font-size: 16px;
+        width: 50px;
+        text-align: right;
       }
       #repository {
         position: fixed;
@@ -116,6 +122,10 @@
       <label>
         <input name=reverse type=checkbox>
         <span>Reverse</span>
+      </label>
+      <label>
+        <input name=factor type=number min=0.0001 max=10 value=1.0>
+        <span>Factor</span>
       </label>
     </form>
     <a id="repository" target="_blank" href="https://github.com/jessetane/scroll-refractor">Source Code</a>

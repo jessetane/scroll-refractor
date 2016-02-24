@@ -191,7 +191,7 @@ ScrollRefractor.prototype.update = function () {
 
   scroll -= offsetBefore
   var offset = this._reverse ? ((scroll - contentSize + offsetPerpendicular) * factor) : -scroll * factor
-  offset = Math.max(offset, (-contentSize + offsetPerpendicular) * factor)
+  offset = Math.max(offset, (-contentSize + offsetPerpendicular) / factor)
   offset = Math.min(offset, 0)
 
   if (this._direction === 'vertical') {

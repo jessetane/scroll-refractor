@@ -14,6 +14,9 @@ function update () {
   refractor.setAttribute('direction', direction)
   document.documentElement.className = direction
 
+  // set factor
+  refractor.setAttribute('factor', form.elements.factor.value)
+
   // reverse
   var reverse = form.elements.reverse.checked
   if (reverse) {

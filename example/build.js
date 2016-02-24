@@ -38,7 +38,6 @@ Object.defineProperty(ScrollRefractor.prototype, 'direction', {
     if (!vertical && direction !== 'horizontal') {
       throw new Error('direction must be vertical or horizontal')
     }
-    this._scrollBefore = vertical ? 'scrollTop' : 'scrollLeft'
     this._offsetBefore = vertical ? 'offsetTop' : 'offsetLeft'
     this._offsetAfter = vertical ? 'offsetBottom' : 'offsetRight'
     this._offsetMain = vertical ? 'offsetHeight' : 'offsetWidth'
@@ -58,6 +57,24 @@ Object.defineProperty(ScrollRefractor.prototype, 'reverse', {
   set: function (reverse) {
     this._reverse = !!reverse
     this._reset()
+  }
+})
+
+Object.defineProperty(ScrollRefractor.prototype, 'scrollBefore', {
+  get: function () {
+    if (this._direction === 'vertical') {
+      if (this._scrollReference === document.body) {
+        return document.documentElement.scrollTop || this._scrollReference.scrollTop
+      } else {
+        return this._scrollReference.scrollTop
+      }
+    } else {
+      if (this._scrollReference === document.body) {
+        return document.documentElement.scrollLeft || this._scrollReference.scrollLeft
+      } else {
+        return this._scrollReference.scrollLeft
+      }
+    }
   }
 })
 
@@ -109,7 +126,7 @@ ScrollRefractor.prototype._onscroll = function () {
 
 ScrollRefractor.prototype._onenterFrame = function () {
   if (this._hidden) return
-  var scroll = this._scrollReference[this._scrollBefore]
+  var scroll = this.scrollBefore
   if (this._lastScroll === scroll) {
     if (!this._debounce) {
       this._debounce = 1
@@ -138,7 +155,7 @@ ScrollRefractor.prototype.update = function () {
   var scrollable = contentSize - offsetPerpendicular
   this.style[this._size] = scrollable + contentSizePerpendicular + 'px'
 
-  var scroll = this._scrollReference[this._scrollBefore]
+  var scroll = this.scrollBefore
   var offsetBefore = this[this._offsetBefore]
   if (scroll < offsetBefore) {
     content.style[this._edgeBefore] = '0'

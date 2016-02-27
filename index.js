@@ -11,6 +11,18 @@ Object.defineProperty(ScrollRefractor.prototype, 'direction', {
     if (!vertical && direction !== 'horizontal') {
       throw new Error('direction must be vertical or horizontal')
     }
+    var content = this.firstElementChild
+    if (direction === 'vertical') {
+      if (content) {
+        content.style.left = content.style.right = null
+      }
+      this.style.width = null
+    } else {
+      if (content) {
+        content.style.top = content.style.bottom = null
+      }
+      this.style.height = null
+    }
     this._offsetBefore = vertical ? 'offsetTop' : 'offsetLeft'
     this._offsetAfter = vertical ? 'offsetBottom' : 'offsetRight'
     this._offsetMain = vertical ? 'offsetHeight' : 'offsetWidth'
@@ -19,7 +31,6 @@ Object.defineProperty(ScrollRefractor.prototype, 'direction', {
     this._edgeAfter = vertical ? 'bottom' : 'right'
     this._size = vertical ? 'height' : 'width'
     this._direction = direction
-    this._reset()
   }
 })
 
@@ -32,7 +43,6 @@ Object.defineProperty(ScrollRefractor.prototype, 'reverse', {
   },
   set: function (reverse) {
     this._reverse = !!reverse
-    this._reset()
   }
 })
 
@@ -93,18 +103,7 @@ ScrollRefractor.prototype.detachedCallback = function () {
 
 ScrollRefractor.prototype.attributeChangedCallback = function (name) {
   this[name] = this.getAttribute(name)
-}
-
-ScrollRefractor.prototype._reset = function () {
-  this.style.width = this.style.height = null
-  var content = this.firstElementChild
-  if (content) {
-    content.style.top = content.style.bottom = content.style.left = content.style.right = null
-    content.style.transform = 'translate3d(0,0,0)'
-  }
-  if (this._scrollReference) {
-    this._scrollReference.scrollTop = this._scrollReference.scrollLeft = 0
-  }
+  this.update()
 }
 
 ScrollRefractor.prototype._onscroll = function () {

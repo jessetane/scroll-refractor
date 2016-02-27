@@ -2,13 +2,10 @@ require('document-register-element')
 require('../')
 
 var refractor = document.querySelector('x-scroll-refractor')
-var form = document.querySelector('form')
-
 window.addEventListener('resize', refractor.update.bind(refractor))
-form.addEventListener('change', update)
-update()
 
-function update () {
+var form = document.querySelector('form')
+form.addEventListener('change', function () {
   // change direction
   var direction = form.elements.direction.value
   refractor.setAttribute('direction', direction)
@@ -24,4 +21,4 @@ function update () {
   } else {
     refractor.removeAttribute('reverse')
   }
-}
+})

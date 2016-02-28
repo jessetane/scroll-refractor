@@ -2,17 +2,17 @@ var ScrollRefractor = {
   prototype: Object.create(HTMLElement.prototype)
 }
 
-Object.defineProperty(ScrollRefractor.prototype, 'direction', {
+Object.defineProperty(ScrollRefractor.prototype, 'orientation', {
   get: function () {
-    return this._direction
+    return this._orientation
   },
-  set: function (direction) {
-    var vertical = direction === 'vertical'
-    if (!vertical && direction !== 'horizontal') {
-      throw new Error('direction must be vertical or horizontal')
+  set: function (orientation) {
+    var vertical = orientation === 'vertical'
+    if (!vertical && orientation !== 'horizontal') {
+      throw new Error('orientation must be vertical or horizontal')
     }
     var content = this.firstElementChild
-    if (direction === 'vertical') {
+    if (orientation === 'vertical') {
       if (content) {
         content.style.left = content.style.right = null
       }
@@ -30,7 +30,7 @@ Object.defineProperty(ScrollRefractor.prototype, 'direction', {
     this._edgeBefore = vertical ? 'top' : 'left'
     this._edgeAfter = vertical ? 'bottom' : 'right'
     this._size = vertical ? 'height' : 'width'
-    this._direction = direction
+    this._orientation = orientation
   }
 })
 
@@ -60,7 +60,7 @@ Object.defineProperty(ScrollRefractor.prototype, 'factor', {
 
 Object.defineProperty(ScrollRefractor.prototype, 'scrollBefore', {
   get: function () {
-    if (this._direction === 'vertical') {
+    if (this._orientation === 'vertical') {
       if (this._scrollReference === document.body) {
         return document.documentElement.scrollTop || this._scrollReference.scrollTop
       } else {
@@ -78,8 +78,8 @@ Object.defineProperty(ScrollRefractor.prototype, 'scrollBefore', {
 
 ScrollRefractor.prototype.createdCallback = function () {
   this.style.position = 'relative'
-  if (!this.getAttribute('direction')) {
-    this.direction = 'vertical'
+  if (!this.getAttribute('orientation')) {
+    this.orientation = 'vertical'
   }
   this._onenterFrame = this._onenterFrame.bind(this)
   this._onscrollEnd = this._onscrollEnd.bind(this)
@@ -163,7 +163,7 @@ ScrollRefractor.prototype.update = function () {
   offset = Math.max(offset, -contentSize + offsetPerpendicular)
   offset = Math.min(offset, 0)
 
-  if (this._direction === 'vertical') {
+  if (this._orientation === 'vertical') {
     content.style.transform = 'translate3d(' + offset + 'px,0,0)'
   } else {
     content.style.transform = 'translate3d(0,' + offset + 'px,0)'

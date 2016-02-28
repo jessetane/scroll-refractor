@@ -8,8 +8,13 @@ var form = document.querySelector('form')
 form.addEventListener('change', function () {
   // change direction
   var direction = form.elements.direction.value
-  refractor.setAttribute('direction', direction)
   document.documentElement.className = direction
+  refractor.setAttribute('direction', direction)
+  if (direction === 'vertical') {
+    document.documentElement.scrollLeft = document.body.scrollLeft = 0
+  } else {
+    document.documentElement.scrollTop = document.body.scrollTop = 0
+  }
 
   // set factor
   refractor.setAttribute('factor', form.elements.factor.value)

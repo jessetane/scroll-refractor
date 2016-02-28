@@ -44,7 +44,7 @@ Object.defineProperty(ScrollRefractor.prototype, 'orientation', {
       throw new Error('orientation must be vertical or horizontal')
     }
     var content = this.firstElementChild
-    if (orientation === 'vertical') {
+    if (vertical) {
       if (content) {
         content.style.left = content.style.right = null
       }
@@ -165,6 +165,7 @@ ScrollRefractor.prototype._onenterFrame = function () {
 
 ScrollRefractor.prototype.update = function () {
   var content = this.firstElementChild
+  if (!content) return
   if (!content.style.position) {
     content.style.position = 'absolute'
   }

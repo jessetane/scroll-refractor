@@ -1,5 +1,18 @@
-var ScrollRefractor = {
-  prototype: Object.create(HTMLElement.prototype)
+module.exports = ScrollRefractor
+
+ScrollRefractor.prototype = Object.create(
+  HTMLElement.prototype
+)
+
+function ScrollRefractor () {
+  HTMLElement.call(this)
+  this.style.position = 'relative'
+  if (!this.getAttribute('orientation')) {
+    this.orientation = 'vertical'
+  }
+  this._onenterFrame = this._onenterFrame.bind(this)
+  this._onscrollEnd = this._onscrollEnd.bind(this)
+  this._onscroll = this._onscroll.bind(this)
 }
 
 Object.defineProperty(ScrollRefractor.prototype, 'orientation', {
@@ -75,16 +88,6 @@ Object.defineProperty(ScrollRefractor.prototype, 'scrollBefore', {
     }
   }
 })
-
-ScrollRefractor.prototype.createdCallback = function () {
-  this.style.position = 'relative'
-  if (!this.getAttribute('orientation')) {
-    this.orientation = 'vertical'
-  }
-  this._onenterFrame = this._onenterFrame.bind(this)
-  this._onscrollEnd = this._onscrollEnd.bind(this)
-  this._onscroll = this._onscroll.bind(this)
-}
 
 ScrollRefractor.prototype.attachedCallback = function () {
   if (!this._scrollReference) {
@@ -176,4 +179,4 @@ ScrollRefractor.prototype._onscrollEnd = function () {
   this._scrollEmitter.addEventListener('scroll', this._onscroll)
 }
 
-module.exports = document.registerElement('x-scroll-refractor', ScrollRefractor)
+document.defineElement('x-scroll-refractor', ScrollRefractor)

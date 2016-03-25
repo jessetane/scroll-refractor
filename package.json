@@ -1,6 +1,6 @@
 {
   "name": "scroll-refractor",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "A web component that scrolls its content perpendicularly",
   "scripts": {
     "example": "cd example; watchify index.js -o build.js & ROOT=. app-server & wait"

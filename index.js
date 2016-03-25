@@ -95,6 +95,8 @@ ScrollRefractor.prototype.attachedCallback = function () {
   }
   if (this._scrollReference === document.body) {
     this._scrollEmitter = window
+  } else {
+    this._scrollEmitter = this._scrollReference
   }
   this._scrollEmitter.addEventListener('scroll', this._onscroll)
 }

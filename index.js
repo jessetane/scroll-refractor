@@ -93,6 +93,9 @@ ScrollRefractor.prototype.attachedCallback = function () {
   if (!this._scrollReference) {
     this._scrollReference = this.parentNode
   }
+  if (!this.offsetReference) {
+    this.offsetReference = this
+  }
   if (this._scrollReference === document.body) {
     this._scrollEmitter = window
   } else {
@@ -151,7 +154,7 @@ ScrollRefractor.prototype.update = function () {
   this.style[this._size] = scrollable + contentSizePerpendicular + 'px'
 
   var scroll = this.scrollBefore
-  var offsetBefore = this[this._offsetBefore]
+  var offsetBefore = this.offsetReference[this._offsetBefore]
   if (scroll < offsetBefore) {
     content.style[this._edgeBefore] = '0'
     content.style[this._edgeAfter] = null

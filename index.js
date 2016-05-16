@@ -123,7 +123,9 @@ ScrollRefractor.prototype.disconnectedCallback = function () {
 
 ScrollRefractor.prototype.attributeChangedCallback = function (name) {
   this[name] = this.getAttribute(name)
-  this.update()
+  if (this.isConnected) {
+    this.update()
+  }
 }
 
 ScrollRefractor.prototype._onscroll = function () {

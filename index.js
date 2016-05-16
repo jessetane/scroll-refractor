@@ -22,6 +22,12 @@ ScrollRefractor.prototype = Object.create(
   }
 )
 
+ScrollRefractor.observedAttributes = [
+  'orientation',
+  'reverse',
+  'factor'
+]
+
 Object.defineProperty(ScrollRefractor.prototype, 'orientation', {
   get: function () {
     return this._orientation
@@ -96,7 +102,7 @@ Object.defineProperty(ScrollRefractor.prototype, 'scrollBefore', {
   }
 })
 
-ScrollRefractor.prototype.attachedCallback = function () {
+ScrollRefractor.prototype.connectedCallback = function () {
   if (!this._scrollReference) {
     this._scrollReference = this.parentNode
   }
@@ -112,7 +118,7 @@ ScrollRefractor.prototype.attachedCallback = function () {
   this._scrollEmitter.addEventListener('scroll', this._onscroll)
 }
 
-ScrollRefractor.prototype.detachedCallback = function () {
+ScrollRefractor.prototype.disconnectedCallback = function () {
   this._scrollEmitter.removeEventListener('scroll', this._onscroll)
   this._hidden = true
 }
@@ -192,4 +198,4 @@ ScrollRefractor.prototype._onscrollEnd = function () {
   this._scrollEmitter.addEventListener('scroll', this._onscroll)
 }
 
-document.defineElement('x-scroll-refractor', ScrollRefractor)
+customElements.define('x-scroll-refractor', ScrollRefractor)

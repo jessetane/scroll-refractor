@@ -32,26 +32,37 @@ form.addEventListener('change', function () {
 },{"../":2,"custom-elements":3}],2:[function(require,module,exports){
 module.exports = ScrollRefractor
 
-ScrollRefractor.prototype = Object.create(
-  HTMLElement.prototype
-)
-
 function ScrollRefractor () {
   HTMLElement.call(this)
   this.style.position = 'relative'
-  if (!this.getAttribute('orientation')) {
-    this.orientation = 'vertical'
-  }
   this._onenterFrame = this._onenterFrame.bind(this)
   this._onscrollEnd = this._onscrollEnd.bind(this)
   this._onscroll = this._onscroll.bind(this)
 }
+
+ScrollRefractor.prototype = Object.create(
+  HTMLElement.prototype, {
+    constructor: {
+      value: ScrollRefractor,
+      enumberable: false,
+      configurable: true,
+      writable: true
+    }
+  }
+)
+
+ScrollRefractor.observedAttributes = [
+  'orientation',
+  'reverse',
+  'factor'
+]
 
 Object.defineProperty(ScrollRefractor.prototype, 'orientation', {
   get: function () {
     return this._orientation
   },
   set: function (orientation) {
+    if (!orientation) orientation = 'vertical'
     var vertical = orientation === 'vertical'
     if (!vertical && orientation !== 'horizontal') {
       throw new Error('orientation must be vertical or horizontal')
@@ -121,24 +132,32 @@ Object.defineProperty(ScrollRefractor.prototype, 'scrollBefore', {
   }
 })
 
-ScrollRefractor.prototype.attachedCallback = function () {
+ScrollRefractor.prototype.connectedCallback = function () {
   if (!this._scrollReference) {
     this._scrollReference = this.parentNode
   }
+  if (!this.offsetReference) {
+    this.offsetReference = this
+  }
   if (this._scrollReference === document.body) {
     this._scrollEmitter = window
+  } else {
+    this._scrollEmitter = this._scrollReference
   }
+  this._hidden = false
   this._scrollEmitter.addEventListener('scroll', this._onscroll)
 }
 
-ScrollRefractor.prototype.detachedCallback = function () {
+ScrollRefractor.prototype.disconnectedCallback = function () {
   this._scrollEmitter.removeEventListener('scroll', this._onscroll)
   this._hidden = true
 }
 
 ScrollRefractor.prototype.attributeChangedCallback = function (name) {
   this[name] = this.getAttribute(name)
-  this.update()
+  if (this.isConnected) {
+    this.update()
+  }
 }
 
 ScrollRefractor.prototype._onscroll = function () {
@@ -180,7 +199,7 @@ ScrollRefractor.prototype.update = function () {
   this.style[this._size] = scrollable + contentSizePerpendicular + 'px'
 
   var scroll = this.scrollBefore
-  var offsetBefore = this[this._offsetBefore]
+  var offsetBefore = this.offsetReference[this._offsetBefore]
   if (scroll < offsetBefore) {
     content.style[this._edgeBefore] = '0'
     content.style[this._edgeAfter] = null
@@ -211,61 +230,180 @@ ScrollRefractor.prototype._onscrollEnd = function () {
   this._scrollEmitter.addEventListener('scroll', this._onscroll)
 }
 
-document.defineElement('x-scroll-refractor', ScrollRefractor)
+customElements.define('x-scroll-refractor', ScrollRefractor)
 
 },{}],3:[function(require,module,exports){
-function defineElement (name, constructor, options) {
-  name = name.toLowerCase()
-  if (name in registry) {
-    throw new Error('NotSupportedError')
-  }
-  registry[name] = constructor
-  registry[name.toUpperCase()] = constructor
-  selectors = selectors.length ? (',' + name) : name
-  Array.prototype.slice.call(
-    document.querySelectorAll(name)
-  ).forEach(function (element) {
-    Object.setPrototypeOf(element, constructor.prototype)
-    constructor.call(element)
-    if (element.attachedCallback) {
-      element.attachedCallback()
-    }
-  })
+function CustomElement () {
+  this.__custom = true
+  this.__defined = true
+  this.__isConnected = false
 }
 
-function CustomHTMLElement () {
-  createHiddenProperty(this, '__constructed__', true)
-  createHiddenProperty(this, '__attached__', false)
-}
-
-CustomHTMLElement.prototype = Object.create(
+CustomElement.prototype = Object.create(
   HTMLElement.prototype
 )
 
-function createHiddenProperty (object, property, value) {
-  Object.defineProperty(object, property, {
-    value: value,
-    writable: true,
-    enumerable: false,
-    configurable: false
+Object.defineProperty(CustomElement.prototype, 'custom', {
+  get: function () {
+    return this.__custom
+  }
+})
+
+Object.defineProperty(CustomElement.prototype, 'defined', {
+  get: function () {
+    return this.__defined
+  }
+})
+
+Object.defineProperty(CustomElement.prototype, 'isConnected', {
+  get: function () {
+    return this.__isConnected
+  },
+  set: function (isConnected) {
+    this.__isConnected = isConnected
+  }
+})
+
+function CustomElementsRegistry () {}
+
+CustomElementsRegistry.prototype.define = function (name, constructor, options) {
+  var nodeName = name.toUpperCase()
+  if (nodeName in registry) {
+    throw new Error('NotSupportedError')
+  }
+  registry[nodeName] = constructor
+  selectors += selectors.length ? (',' + name) : name
+  upgradeChildren(document, name, true)
+}
+
+function upgradeChildren (element, selector, connected) {
+  Array.prototype.slice.call(
+    element.querySelectorAll(selector)
+  ).forEach(function (child) {
+    upgradeElement(child, connected)
   })
 }
 
-if (!document.defineElement) {
+function upgradeElement (element, connected) {
+  var constructor = registry[element.nodeName]
+  if (constructor) {
+    if (!element.__defined) {
+      constructElement(element, constructor)
+    }
+    if (connected && element.connectedCallback && !element.__isConnected) {
+      element.__isConnected = true
+      element.connectedCallback()
+    }
+  }
+  upgradeChildren(element, selectors, connected)
+}
+
+function constructElement (element, constructor) {
+  Object.setPrototypeOf(element, constructor.prototype)
+  constructor.call(element)
+  if (element.attributeChangedCallback && constructor.observedAttributes) {
+    constructor.observedAttributes.forEach(function (attributeName) {
+      element.attributeChangedCallback(
+        attributeName,
+        null,
+        element.getAttribute(attributeName)
+      )
+    })
+  }
+}
+
+function maybeUpgradeChildren (element) {
+  var connected = element.__isConnected || document.contains(element)
+  if (connected) {
+    upgradeChildren(
+      element,
+      selectors,
+      connected
+    )
+  }
+}
+
+function disconnectChildren (element) {
+  Array.prototype.slice.call(
+    element.querySelectorAll(selectors)
+  ).forEach(disconnectElement)
+}
+
+function disconnectElement (element, recursive) {
+  if (element.__custom && element.disconnectedCallback && element.__isConnected === true) {
+    element.__isConnected = false
+    element.disconnectedCallback()
+  }
+  if (recursive) {
+    disconnectChildren(element)
+  }
+}
+
+function changeAttribute (remove, element, name, value) {
+  var callback = element.__custom && element.attributeChangedCallback
+  if (callback) {
+    var oldValue = element.getAttribute(name)
+  }
+  if (remove) {
+    removeAttribute.call(element, name)
+    value = null
+  } else {
+    setAttribute.call(element, name, value)
+  }
+  if (callback) {
+    attributeChanges.push([ element, name, oldValue ])
+    runAttributeChangedCallback(
+      element,
+      name,
+      oldValue,
+      value
+    )
+  }
+}
+
+function runAttributeChangedCallback (element, attributeName, oldValue, newValue) {
+  if (oldValue === newValue) return
+  var constructor = registry[element.nodeName]
+  var observedAttributes = constructor.observedAttributes
+  if (observedAttributes && arrayIncludes(observedAttributes, attributeName)) {
+    element.attributeChangedCallback(
+      attributeName,
+      oldValue,
+      newValue
+    )
+  }
+}
+
+function arrayIncludes (array, item) {
+  var includes = false
+  array.forEach(function (_item) {
+    if (!includes && _item === item) {
+      includes = true
+    }
+  })
+  return includes
+}
+
+if (!window.customElements) {
+  window.customElements = new CustomElementsRegistry()
+  window.HTMLElement = CustomElement
+
   var registry = {}
   var selectors = ''
+  var attributeChanges = []
   var appendChild = Element.prototype.appendChild
   var insertBefore = Element.prototype.insertBefore
   var removeChild = Element.prototype.removeChild
   var remove = Element.prototype.remove
-  var realCreateElement = document.createElement
+  var setAttribute = Element.prototype.setAttribute
+  var removeAttribute = Element.prototype.removeAttribute
+  var createElement = document.createElement
 
   Element.prototype.appendChild = function (child) {
     child.remove()
     appendChild.call(this, child)
-    if (registry[child.nodeName] && child.attachedCallback) {
-      child.__attached__ = true
-      child.attachedCallback()
+    if (selectors) {
+      maybeUpgradeChildren(this)
     }
     return child
   }
@@ -273,9 +411,8 @@ if (!document.defineElement) {
   Element.prototype.insertBefore = function (child, otherChild) {
     child.remove()
     insertBefore.call(this, child, otherChild)
-    if (registry[child.nodeName] && child.attachedCallback) {
-      child.__attached__ = true
-      child.attachedCallback()
+    if (selectors) {
+      maybeUpgradeChildren(this)
     }
     return child
   }
@@ -289,9 +426,8 @@ if (!document.defineElement) {
 
   Element.prototype.removeChild = function (child) {
     removeChild.call(this, child)
-    if (registry[child.nodeName] && child.detachedCallback) {
-      child.__attached__ = false
-      child.detachedCallback()
+    if (selectors && child.nodeType === 1) {
+      disconnectElement(child, true)
     }
     return child
   }
@@ -299,28 +435,32 @@ if (!document.defineElement) {
   Element.prototype.remove = function () {
     if (!this.parentNode) return
     remove.call(this)
-    if (registry[this.nodeName] && this.detachedCallback) {
-      this.__attached__ = false
-      this.detachedCallback()
+    if (selectors && this.nodeType === 1) {
+      disconnectElement(this, true)
     }
     return this
   }
 
+  Element.prototype.setAttribute = function (name, value) {
+    changeAttribute(false, this, name, value)
+  }
+
+  Element.prototype.removeAttribute = function (name) {
+    changeAttribute(true, this, name)
+  }
+
   document.createElement = function (name) {
-    var element = realCreateElement.call(document, name)
-    var constructor = registry[name.toLowerCase()]
+    name = name.toUpperCase()
+    var element = createElement.call(document, name)
+    var constructor = registry[name]
     if (constructor) {
-      Object.setPrototypeOf(element, constructor.prototype)
-      constructor.call(element)
+      constructElement(element, constructor)
     }
     return element
   }
 
-  document.defineElement = defineElement
-
-  window.HTMLElement = CustomHTMLElement
-
   new MutationObserver(function (changes) {
+    if (!selectors) return
     var changeCount = changes.length
     var i = -1
     while (++i < changeCount) {
@@ -332,36 +472,35 @@ if (!document.defineElement) {
         var n = -1
         while (++n < childCount) {
           var child = added[n]
-          var constructor = registry[child.nodeName]
-          if (constructor) {
-            if (child.__constructed__ === undefined) {
-              Object.setPrototypeOf(child, constructor.prototype)
-              constructor.call(child)
-            }
-            if (child.attachedCallback && child.__attached__ === false) {
-              child.__attached__ = true
-              child.attachedCallback()
-            }
+          if (child.nodeType === 1) {
+            upgradeElement(child, selectors, true)
           }
         }
         childCount = removed.length
         n = -1
         while (++n < removed) {
           child = removed[n]
-          if (registry[child.nodeName] && child.detachedCallback && child.__attached__ === true) {
-            child.__attached__ = false
-            child.detachedCallback()
+          if (child.nodeType === 1) {
+            disconnectElement(child, true)
           }
         }
-      } else {
+      } else if (change.type === 'attributes') {
         child = change.target
-        if (child.attributeChangedCallback && change.attributeName !== 'style') {
-          var newValue = child.getAttribute(change.attributeName)
-          if (newValue !== change.oldValue) {
-            child.attributeChangedCallback(
-              change.attributeName,
-              change.oldValue,
-              newValue
+        if (child.__custom && child.attributeChangedCallback) {
+          var attributeName = change.attributeName
+          var oldValue = change.oldValue
+          var lastKnownChange = attributeChanges[0]
+          if (lastKnownChange &&
+              lastKnownChange[0] === child &&
+              lastKnownChange[1] === attributeName &&
+              lastKnownChange[2] === oldValue) {
+            attributeChanges.shift()
+          } else {
+            runAttributeChangedCallback(
+              child,
+              attributeName,
+              oldValue,
+              child.getAttribute(attributeName)
             )
           }
         }
@@ -369,9 +508,9 @@ if (!document.defineElement) {
     }
   }).observe(document, {
     childList: true,
+    subtree: true,
     attributes: true,
-    attributeOldValue: true,
-    subtree: true
+    attributeOldValue: true
   })
 }
 

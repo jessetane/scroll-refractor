@@ -1,9 +1,5 @@
 module.exports = ScrollRefractor
 
-ScrollRefractor.prototype = Object.create(
-  HTMLElement.prototype
-)
-
 function ScrollRefractor () {
   HTMLElement.call(this)
   this.style.position = 'relative'
@@ -14,6 +10,17 @@ function ScrollRefractor () {
   this._onscrollEnd = this._onscrollEnd.bind(this)
   this._onscroll = this._onscroll.bind(this)
 }
+
+ScrollRefractor.prototype = Object.create(
+  HTMLElement.prototype, {
+    constructor: {
+      value: ScrollRefractor,
+      enumberable: false,
+      configurable: true,
+      writable: true
+    }
+  }
+)
 
 Object.defineProperty(ScrollRefractor.prototype, 'orientation', {
   get: function () {

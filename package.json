@@ -7,7 +7,7 @@
   },
   "devDependencies": {
     "app-server": "github:jessetane/app-server",
-    "custom-elements": "github:jessetane/custom-elements#0.0.3",
+    "custom-elements": "github:jessetane/custom-elements#0.0.11",
     "watchify": "^3.7.0"
   },
   "repository": "https://github.com/jessetane/scroll-refractor",

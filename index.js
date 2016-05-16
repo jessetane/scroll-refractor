@@ -98,6 +98,7 @@ ScrollRefractor.prototype.attachedCallback = function () {
   } else {
     this._scrollEmitter = this._scrollReference
   }
+  this._hidden = false
   this._scrollEmitter.addEventListener('scroll', this._onscroll)
 }
 

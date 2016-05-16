@@ -3,9 +3,6 @@ module.exports = ScrollRefractor
 function ScrollRefractor () {
   HTMLElement.call(this)
   this.style.position = 'relative'
-  if (!this.getAttribute('orientation')) {
-    this.orientation = 'vertical'
-  }
   this._onenterFrame = this._onenterFrame.bind(this)
   this._onscrollEnd = this._onscrollEnd.bind(this)
   this._onscroll = this._onscroll.bind(this)
@@ -33,6 +30,7 @@ Object.defineProperty(ScrollRefractor.prototype, 'orientation', {
     return this._orientation
   },
   set: function (orientation) {
+    if (!orientation) orientation = 'vertical'
     var vertical = orientation === 'vertical'
     if (!vertical && orientation !== 'horizontal') {
       throw new Error('orientation must be vertical or horizontal')

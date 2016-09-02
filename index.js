@@ -1,11 +1,11 @@
 module.exports = ScrollRefractor
 
 function ScrollRefractor () {
-  HTMLElement.call(this)
-  this.style.position = 'relative'
-  this._onenterFrame = this._onenterFrame.bind(this)
-  this._onscrollEnd = this._onscrollEnd.bind(this)
-  this._onscroll = this._onscroll.bind(this)
+  var self = HTMLElement.call(this)
+  self._onenterFrame = self._onenterFrame.bind(self)
+  self._onscrollEnd = self._onscrollEnd.bind(self)
+  self._onscroll = self._onscroll.bind(self)
+  return self
 }
 
 ScrollRefractor.prototype = Object.create(
@@ -101,6 +101,8 @@ Object.defineProperty(ScrollRefractor.prototype, 'scrollBefore', {
 })
 
 ScrollRefractor.prototype.connectedCallback = function () {
+  this.style.position = 'relative'
+  if (!this._orientation) this.orientation = 'vertical'
   if (!this._scrollReference) {
     this._scrollReference = this.parentNode
   }
